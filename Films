@@ -1,0 +1,70 @@
+--1)Напишите запрос, который выводит список фильмов, где рейтинг является NULL, и заменяет NULL на значение 0.
+SELECT
+MOVIE_ID,
+TITLE,
+GENRE,
+COALESCE (RATING,0) AS ratig
+FROM MOVIES
+WHERE rating is NULL
+
+--2)Напишите запрос, который выводит название фильма и округленное вверх значение рейтинга до ближайшего целого числа.
+SELECT
+TITLE,
+CEIL (RATING) AS ROUND_RATING
+FROM MOVIES
+
+--3)Выведите список клиентов, которые зарегистрировались в последний месяц.
+SELECT 
+customer_id,
+FIRST_NAME,
+LAST_NAME,
+registration_date
+FROM CUSTOMERS
+WHERE registration_date >= DATE '2022-12-20' - INTERVAL '1 month'
+
+--4)Выведите количество дней, в течение которых каждый клиент держал у себя фильм.
+SELECT 
+C.customer_id,
+C.FIRST_NAME,
+C.LAST_NAME,
+R.rental_date,
+R.return_date,
+R.return_date-R.rental_date AS RENTAL_DAYS
+FROM rentals R
+JOIN CUSTOMERS C ON R.customer_id=C.customer_id
+WHERE R.rental_date IS NOT NULL
+AND R.return_date IS NOT NULL 
+
+--5)Напишите запрос, который выводит название фильма в верхнем регистре.
+SELECT
+MOVIE_ID,
+UPPER (TITLE) 
+FROM MOVIES
+
+--6)Выведите первые 50 символов описания фильма.
+SELECT
+MOVIE_ID,
+TITLE,
+LEFT (description, 50)
+FROM MOVIES
+--7)Напишите запрос, который выводит жанр и общее количество фильмов в каждом жанре.
+SELECT
+STRING_AGG (TITLE, ',') AS FILMS,
+GENRE,
+COUNT (TITLE)
+FROM MOVIES
+GROUP BY GENRE
+
+--8)Напишите запрос, который выводит название фильма, его рейтинг и место в рейтинге по убыванию рейтинга.
+SELECT
+TITLE,
+RATING,
+RANK () OVER (ORDER BY RATING DESC)
+FROM MOVIES
+
+--Напишите запрос, который выводит название фильма, его рейтинг и рейтинг предыдущего фильма в списке по убыванию рейтинга.
+SELECT
+TITLE,
+RATING,
+LAG (RATING) OVER (ORDER BY RATING DESC)
+FROM MOVIES
