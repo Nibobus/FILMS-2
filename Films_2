@@ -1,0 +1,51 @@
+--Задания:
+--Напишите запрос, который выводит список фильмов вместе с именами и фамилиями актеров, сыгравших в них. Отсортируйте результат по названию фильма и фамилии актера.
+SELECT 
+m.title,
+a.first_name,
+a.last_name 
+from movies m
+JOIN movie_actors ma ON m.movie_id=ma.movie_id
+JOIN actors a ON ma.actor_id=a.actor_id
+ORDER BY title, last_name;
+
+--Напишите запрос, который выводит список всех клиентов и, если они совершали аренды, то укажите дату последней аренды. Если клиент не совершал аренды, дата аренды должна быть NULL.
+SELECT 
+c.first_name || ' ' || c.last_name as customer,
+r.rental_date
+FROM CUSTOMERS c
+LEFT JOIN rentals r on c.customer_id=r.customer_id;
+
+--Напишите запрос, который выводит название фильмов, чья продолжительность больше средней продолжительности всех фильмов в базе данных.
+SELECT
+title, 
+avg_duration_movies
+	FROM (SELECT
+		title, 
+		duration > (SELECT AVG(duration) FROM movies) as avg_duration_movies
+		FROM movies)
+WHERE avg_duration_movies = TRUE;
+
+--Используя CTE, напишите запрос, который вычисляет количество аренд для каждого жанра и выводит жанры с общим количеством аренд, отсортированных по количеству аренд в порядке убывания.
+WITH genre_rental AS (
+		SELECT
+		m.genre,
+		COUNT (r.rental_date) as quantity_rental
+		FROM rentals r
+		LEFT JOIN movies m on r.movie_id=m.movie_id
+		GROUP BY m.genre
+		)
+SELECT 
+genre,
+quantity_rental
+FROM genre_rental
+WHERE quantity_rental IS NOT NULL
+ORDER BY quantity_rental DESC;
+
+--Напишите запрос, который выводит список всех уникальных имен актеров и клиентов в одном столбце. Укажите, что это за тип лица с помощью дополнительного столбца (например, ""Актер"" или ""Клиент"").
+SELECT first_name AS name, 'actor' AS source 
+FROM actors
+UNION ALL
+SELECT first_name,'customer' 
+FROM customers
+ORDER BY name;
